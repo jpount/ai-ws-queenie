@@ -1,22 +1,22 @@
-# Emergency Response Platform - Requirements Summary
+# Dementia Safety & Community Response - Requirements Summary
 
 ## Project Overview
-**Name:** MindAnchor Emergency Response Platform
+**Name:** MindAnchor Dementia Safety & Community Response
 **Type:** React Web Application
-**Purpose:** Emergency assistance platform for elderly patients with dementia, connecting them with caregivers and volunteers
+**Purpose:** Dementia Safety & Community Response assistance platform for elderly patients with dementia, connecting them with caregivers and volunteers to create a dementia inclusive community
 **Development Approach:** MVP with 3-hour build target
 
 ## Core User Personas
 
 ### 1. Patient (Primary User)
 - Elderly individuals with cognitive conditions
-- Need simple, accessible interface
-- Key features: SOS button, medication reminders
+- Need simple, accessible interface 
+- Key features: SOS button, medication reminders 
 
 ### 2. Caregiver (Secondary User)
 - Professional and family caregivers
 - Monitor and respond to patient needs
-- Key features: Alert management, patient dashboard
+- Key features: Alert management, patient dashboard, medication reminders
 
 ### 3. Volunteer (Future Enhancement)
 - Community members offering assistance
