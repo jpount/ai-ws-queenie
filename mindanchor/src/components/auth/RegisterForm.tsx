@@ -234,13 +234,21 @@ const RegisterForm: React.FC = () => {
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-neutral-gray">
                 I agree to the{' '}
-                <a href="#" className="text-mind-blue hover:text-blue-700">
+                <button
+                  type="button"
+                  onClick={() => window.open('/terms', '_blank')}
+                  className="text-mind-blue hover:text-blue-700 underline"
+                >
                   Terms and Conditions
-                </a>{' '}
+                </button>{' '}
                 and{' '}
-                <a href="#" className="text-mind-blue hover:text-blue-700">
+                <button
+                  type="button"
+                  onClick={() => window.open('/privacy', '_blank')}
+                  className="text-mind-blue hover:text-blue-700 underline"
+                >
                   Privacy Policy
-                </a>
+                </button>
               </label>
             </div>
 
@@ -267,9 +275,13 @@ const RegisterForm: React.FC = () => {
             <div className="text-center">
               <p className="text-sm text-neutral-gray">
                 Already have an account?{' '}
-                <Link to="/login" className="font-medium text-mind-blue hover:text-blue-700">
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="font-medium text-mind-blue hover:text-blue-700 underline"
+                >
                   Sign in
-                </Link>
+                </button>
               </p>
             </div>
           </form>

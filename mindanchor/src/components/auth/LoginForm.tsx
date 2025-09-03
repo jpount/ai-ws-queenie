@@ -123,9 +123,13 @@ const LoginForm: React.FC = () => {
                   Remember me
                 </label>
               </div>
-              <a href="#" className="text-sm text-mind-blue hover:text-blue-700">
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm text-mind-blue hover:text-blue-700 underline"
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             {/* Submit Button */}
@@ -158,9 +162,13 @@ const LoginForm: React.FC = () => {
             <div className="text-center">
               <p className="text-sm text-neutral-gray">
                 Don't have an account?{' '}
-                <Link to="/register" className="font-medium text-mind-blue hover:text-blue-700">
+                <button
+                  type="button"
+                  onClick={() => navigate('/register')}
+                  className="font-medium text-mind-blue hover:text-blue-700 underline"
+                >
                   Sign up
-                </Link>
+                </button>
               </p>
             </div>
           </form>

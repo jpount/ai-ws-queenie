@@ -15,8 +15,8 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [showAddCaregiver, setShowAddCaregiver] = useState(false);
   
-  // Default profile photo for Asian elderly lady
-  const defaultProfilePhoto = 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=400&fit=crop&crop=faces&q=80';
+  // Default profile photo - Using Sanny's photo for Queenie
+  const defaultProfilePhoto = '/images/sanny-profile.jpeg';
   
   const [formData, setFormData] = useState({
     name: user?.name || '',

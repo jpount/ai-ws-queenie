@@ -85,10 +85,11 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
   }, [user.id]);
 
   const handleEmergency = async (location: { lat: number; lng: number }) => {
+    const patientName = user.name === 'Queeniechansg' ? 'Queenie' : user.name;
     const newAlert: Alert = {
       id: `alert-${Date.now()}`,
       patientId: user.id,
-      patientName: user.name,
+      patientName: patientName,
       location,
       timestamp: new Date(),
       status: 'active',
@@ -109,14 +110,14 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
           status: 'responded',
           responders: [{
             caregiverId: 'c1',
-            caregiverName: 'Sarah (Daughter)',
+            caregiverName: 'Allan (Dad)',
             responseTime: new Date(),
             etaMinutes: 5,
             distanceMiles: 2.3,
             status: 'en_route'
           }]
         });
-        toast.success('Sarah is on her way! ETA: 5 minutes', {
+        toast.success('Allan is on his way! ETA: 5 minutes', {
           duration: 6000,
           icon: '🚗'
         });
@@ -143,8 +144,9 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
       await twilioService.initialize();
       
       // Make the real call using Twilio
-      const message = `This is an emergency alert from MindAnchor. ${user.name} needs immediate assistance. Please respond by pressing 1 to acknowledge or 2 to call back.`;
-      const result = await twilioService.makeCall(phoneNumber, user.name, message);
+      const patientName = user.name === 'Queeniechansg' ? 'Queenie' : user.name;
+      const message = `This is an emergency alert from MindAnchor. ${patientName} needs immediate assistance. Please respond by pressing 1 to acknowledge or 2 to call back.`;
+      const result = await twilioService.makeCall(phoneNumber, patientName, message);
       
       toast.dismiss('calling');
       
@@ -224,7 +226,7 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
             />
             <div>
               <h1 className="text-3xl font-bold text-deep-navy mb-2">
-                Hello, {user.name}
+                Hello, {user.name === 'Queeniechansg' ? 'Queenie' : user.name}
               </h1>
               <p className="text-xl text-neutral-gray">
                 {formatDate(currentTime)}
@@ -272,7 +274,7 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
           </h2>
           <SOSButton 
             patientId={user.id}
-            patientName={user.name}
+            patientName={user.name === 'Queeniechansg' ? 'Queenie' : user.name}
             onEmergency={handleEmergency}
           />
           
@@ -356,21 +358,21 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
             
             <div className="space-y-3">
               <button 
-                onClick={() => handlePhoneCall('+6591829532', 'Sarah (Daughter)')}
+                onClick={() => handlePhoneCall('+6591829532', 'Allan (Dad)')}
                 disabled={callingContact !== null}
                 className={`w-full p-4 rounded-lg flex items-center justify-between transition-all ${
-                  callingContact === 'Sarah (Daughter)' 
+                  callingContact === 'Allan (Dad)' 
                     ? 'bg-green-100 animate-pulse' 
                     : 'bg-blue-50 hover:bg-blue-100'
-                } ${callingContact && callingContact !== 'Sarah (Daughter)' ? 'opacity-50' : ''}`}
+                } ${callingContact && callingContact !== 'Allan (Dad)' ? 'opacity-50' : ''}`}
               >
                 <div className="text-left">
-                  <p className="font-medium text-deep-navy">Sarah (Daughter)</p>
+                  <p className="font-medium text-deep-navy">Allan (Dad)</p>
                   <p className="text-sm text-neutral-gray">
-                    {callingContact === 'Sarah (Daughter)' ? 'Calling...' : 'Primary Caregiver'}
+                    {callingContact === 'Allan (Dad)' ? 'Calling...' : 'Primary Caregiver'}
                   </p>
                 </div>
-                {callingContact === 'Sarah (Daughter)' ? (
+                {callingContact === 'Allan (Dad)' ? (
                   <PhoneCall className="w-6 h-6 text-green-600 animate-bounce" />
                 ) : (
                   <Phone className="w-6 h-6 text-mind-blue" />
@@ -378,21 +380,21 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
               </button>
               
               <button 
-                onClick={() => handlePhoneCall('+6512345678', 'Dr. Johnson')}
+                onClick={() => handlePhoneCall('+6512345678', 'Dr. Bouchard')}
                 disabled={callingContact !== null}
                 className={`w-full p-4 rounded-lg flex items-center justify-between transition-all ${
-                  callingContact === 'Dr. Johnson' 
+                  callingContact === 'Dr. Bouchard' 
                     ? 'bg-green-100 animate-pulse' 
                     : 'bg-orange-50 hover:bg-orange-100'
-                } ${callingContact && callingContact !== 'Dr. Johnson' ? 'opacity-50' : ''}`}
+                } ${callingContact && callingContact !== 'Dr. Bouchard' ? 'opacity-50' : ''}`}
               >
                 <div className="text-left">
-                  <p className="font-medium text-deep-navy">Dr. Johnson</p>
+                  <p className="font-medium text-deep-navy">Dr. Bouchard</p>
                   <p className="text-sm text-neutral-gray">
-                    {callingContact === 'Dr. Johnson' ? 'Calling...' : 'Family Doctor'}
+                    {callingContact === 'Dr. Bouchard' ? 'Calling...' : 'Family Doctor'}
                   </p>
                 </div>
-                {callingContact === 'Dr. Johnson' ? (
+                {callingContact === 'Dr. Bouchard' ? (
                   <PhoneCall className="w-6 h-6 text-green-600 animate-bounce" />
                 ) : (
                   <Phone className="w-6 h-6 text-anchor-gold" />
