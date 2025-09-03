@@ -9,7 +9,7 @@ import type { PillShape, PillColor } from './MedicineVisual';
 import PatientProfile from './PatientProfile';
 import Avatar from '../common/Avatar';
 import type { User, Alert, Medication } from '../../types';
-import { makeDemoCall } from '../../services/twilioService';
+import { twilioService } from '../../services/twilioService';
 import toast from 'react-hot-toast';
 
 interface PatientDashboardProps {
@@ -137,24 +137,37 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
   const handlePhoneCall = async (phoneNumber: string, contactName: string) => {
     try {
       setCallingContact(contactName);
-      toast.loading(`Calling ${contactName}...`, { id: 'calling' });
+      toast.loading(`Initiating call to ${contactName}...`, { id: 'calling' });
       
-      // Use the demo call function which will work without Twilio credentials
-      await makeDemoCall(phoneNumber, user.name);
+      // Initialize Twilio service if not already done
+      await twilioService.initialize();
+      
+      // Make the real call using Twilio
+      const message = `This is an emergency alert from MindAnchor. ${user.name} needs immediate assistance. Please respond by pressing 1 to acknowledge or 2 to call back.`;
+      const result = await twilioService.makeCall(phoneNumber, user.name, message);
       
       toast.dismiss('calling');
-      toast.success(`Connected to ${contactName}`, {
-        icon: '📞',
-        duration: 4000
-      });
       
-      // Simulate call end after 3 seconds in demo mode
-      setTimeout(() => {
-        setCallingContact(null);
-      }, 3000);
-    } catch (error) {
+      if (result.success) {
+        toast.success(`Call initiated to ${contactName}`, {
+          icon: '📞',
+          duration: 4000
+        });
+        
+        // Keep the calling state for 5 seconds to show the call is in progress
+        setTimeout(() => {
+          setCallingContact(null);
+          toast.success(`Call to ${contactName} completed`, {
+            icon: '✅',
+            duration: 3000
+          });
+        }, 5000);
+      } else {
+        throw new Error(result.error || 'Call failed');
+      }
+    } catch (error: any) {
       toast.dismiss('calling');
-      toast.error('Failed to make call. Please try again.');
+      toast.error(`Failed to call ${contactName}. Make sure the backend server is running.`);
       setCallingContact(null);
       console.error('Call error:', error);
     }
@@ -383,6 +396,50 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
                   <PhoneCall className="w-6 h-6 text-green-600 animate-bounce" />
                 ) : (
                   <Phone className="w-6 h-6 text-anchor-gold" />
+                )}
+              </button>
+              
+              <button 
+                onClick={() => handlePhoneCall('+6598765432', 'Tom (Son)')}
+                disabled={callingContact !== null}
+                className={`w-full p-4 rounded-lg flex items-center justify-between transition-all ${
+                  callingContact === 'Tom (Son)' 
+                    ? 'bg-green-100 animate-pulse' 
+                    : 'bg-purple-50 hover:bg-purple-100'
+                } ${callingContact && callingContact !== 'Tom (Son)' ? 'opacity-50' : ''}`}
+              >
+                <div className="text-left">
+                  <p className="font-medium text-deep-navy">Tom (Son)</p>
+                  <p className="text-sm text-neutral-gray">
+                    {callingContact === 'Tom (Son)' ? 'Calling...' : 'Secondary Contact'}
+                  </p>
+                </div>
+                {callingContact === 'Tom (Son)' ? (
+                  <PhoneCall className="w-6 h-6 text-green-600 animate-bounce" />
+                ) : (
+                  <Phone className="w-6 h-6 text-purple-600" />
+                )}
+              </button>
+              
+              <button 
+                onClick={() => handlePhoneCall('999', 'Emergency Services')}
+                disabled={callingContact !== null}
+                className={`w-full p-4 rounded-lg flex items-center justify-between transition-all ${
+                  callingContact === 'Emergency Services' 
+                    ? 'bg-red-200 animate-pulse' 
+                    : 'bg-red-50 hover:bg-red-100'
+                } ${callingContact && callingContact !== 'Emergency Services' ? 'opacity-50' : ''}`}
+              >
+                <div className="text-left">
+                  <p className="font-medium text-deep-navy">Emergency Services</p>
+                  <p className="text-sm text-neutral-gray">
+                    {callingContact === 'Emergency Services' ? 'Calling 999...' : '999 - Ambulance/Police'}
+                  </p>
+                </div>
+                {callingContact === 'Emergency Services' ? (
+                  <PhoneCall className="w-6 h-6 text-red-600 animate-bounce" />
+                ) : (
+                  <Phone className="w-6 h-6 text-emergency-red" />
                 )}
               </button>
             </div>

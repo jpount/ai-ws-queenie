@@ -1,114 +1,68 @@
-import { Device, Call } from '@twilio/voice-sdk';
-
+// Using REST API approach for making calls
 class TwilioService {
-  private device: Device | null = null;
-  private currentCall: Call | null = null;
+  private baseUrl = 'http://localhost:3001'; // Backend server URL
   private isInitialized = false;
 
   /**
-   * Initialize Twilio Device with access token
-   * In production, this token should be fetched from your backend
+   * Initialize service and check backend health
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
     try {
-      // In production, fetch this token from your backend
-      // The backend should generate it using Twilio API credentials
-      const token = await this.getAccessToken();
+      // Check if backend is running
+      const response = await fetch(`${this.baseUrl}/api/health`);
+      const data = await response.json();
+      console.log('Backend status:', data);
       
-      this.device = new Device(token, {
-        logLevel: 1,
-        edge: 'singapore', // Using Singapore edge for better connectivity in Asia
-      });
-
-      // Set up event listeners
-      this.device.on('registered', () => {
-        console.log('Twilio Device ready to make calls');
-      });
-
-      this.device.on('error', (error) => {
-        console.error('Twilio Device error:', error);
-      });
-
-      this.device.on('incoming', (call) => {
-        console.log('Incoming call from:', call.parameters.From);
-        // Auto-answer for demo purposes
-        call.accept();
-        this.currentCall = call;
-      });
-
-      await this.device.register();
-      this.isInitialized = true;
+      if (data.status === 'OK') {
+        this.isInitialized = true;
+        console.log('Twilio service initialized');
+      } else {
+        throw new Error('Backend not healthy');
+      }
     } catch (error) {
-      console.error('Failed to initialize Twilio:', error);
+      console.error('Failed to initialize Twilio service:', error);
+      console.warn('Make sure the backend server is running: node server.js');
       throw error;
     }
   }
 
   /**
-   * Get access token from backend (mock for now)
-   * In production, this should call your backend API
+   * Make an outbound call using REST API
    */
-  private async getAccessToken(): Promise<string> {
-    // In production, replace with actual API call to your backend
-    // Example:
-    // const response = await fetch('/api/twilio/token');
-    // const data = await response.json();
-    // return data.token;
-
-    // For demo purposes, returning a mock token
-    // You'll need to implement a backend endpoint that generates this token
-    console.warn('Using mock token - implement backend token generation for production');
-    return 'mock-token-replace-with-real-implementation';
-  }
-
-  /**
-   * Make an outbound call
-   */
-  async makeCall(phoneNumber: string, callerName: string = 'Patient'): Promise<void> {
+  async makeCall(phoneNumber: string, callerName: string = 'Patient', message?: string): Promise<any> {
     if (!this.isInitialized) {
       await this.initialize();
-    }
-
-    if (!this.device) {
-      throw new Error('Twilio Device not initialized');
-    }
-
-    if (this.currentCall) {
-      console.log('Ending current call');
-      this.currentCall.disconnect();
     }
 
     try {
       // Format phone number (ensure it starts with +)
       const formattedNumber = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
       
-      console.log(`Calling ${formattedNumber} as ${callerName}`);
+      console.log(`Making call to ${formattedNumber} for ${callerName}`);
       
-      const call = await this.device.connect({
-        params: {
-          To: formattedNumber,
-          CallerName: callerName,
-        }
+      const customMessage = message || `This is an emergency alert from MindAnchor. ${callerName} needs immediate assistance.`;
+      
+      const response = await fetch(`${this.baseUrl}/api/twilio/make-call`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: formattedNumber,
+          message: customMessage
+        })
       });
 
-      this.currentCall = call;
-
-      // Set up call event handlers
-      call.on('accept', () => {
-        console.log('Call connected');
-      });
-
-      call.on('disconnect', () => {
-        console.log('Call ended');
-        this.currentCall = null;
-      });
-
-      call.on('error', (error) => {
-        console.error('Call error:', error);
-      });
-
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('Call initiated successfully:', data);
+        return data;
+      } else {
+        throw new Error(data.error || 'Failed to make call');
+      }
     } catch (error) {
       console.error('Failed to make call:', error);
       throw error;
@@ -116,39 +70,58 @@ class TwilioService {
   }
 
   /**
-   * End the current call
+   * Send SMS message
    */
-  endCall(): void {
-    if (this.currentCall) {
-      this.currentCall.disconnect();
-      this.currentCall = null;
+  async sendSMS(phoneNumber: string, message: string): Promise<any> {
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+
+    try {
+      const formattedNumber = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
+      
+      const response = await fetch(`${this.baseUrl}/api/twilio/send-sms`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: formattedNumber,
+          body: message
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('SMS sent successfully:', data);
+        return data;
+      } else {
+        throw new Error(data.error || 'Failed to send SMS');
+      }
+    } catch (error) {
+      console.error('Failed to send SMS:', error);
+      throw error;
     }
   }
 
   /**
-   * Check if a call is currently active
+   * Check backend health
    */
-  isCallActive(): boolean {
-    return this.currentCall !== null && this.currentCall.status() === 'open';
-  }
-
-  /**
-   * Get current call status
-   */
-  getCallStatus(): string {
-    if (!this.currentCall) return 'idle';
-    return this.currentCall.status();
+  async checkHealth(): Promise<any> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/health`);
+      return await response.json();
+    } catch (error) {
+      console.error('Health check failed:', error);
+      return { status: 'ERROR', error: error.message };
+    }
   }
 
   /**
    * Clean up resources
    */
   destroy(): void {
-    this.endCall();
-    if (this.device) {
-      this.device.destroy();
-      this.device = null;
-    }
     this.isInitialized = false;
   }
 }

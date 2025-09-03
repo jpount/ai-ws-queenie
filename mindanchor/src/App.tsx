@@ -7,6 +7,7 @@ import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import TestTwilio from './components/TestTwilio';
 
 // Wrapper component to provide AlertProvider with user context
 function AppContent() {
@@ -18,6 +19,7 @@ function AppContent() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/test-twilio" element={<TestTwilio />} />
         <Route
           path="/dashboard"
           element={
