@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Pill, MapPin, Phone, Activity, LogOut, CheckCircle } from 'lucide-react';
+import { Clock, Pill, MapPin, Phone, Activity, LogOut, CheckCircle, User as UserIcon } from 'lucide-react';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import SOSButton from './SOSButton';
 import MedicationReminder from './MedicationReminder';
 import MedicineVisual from './MedicineVisual';
 import type { PillShape, PillColor } from './MedicineVisual';
+import PatientProfile from './PatientProfile';
+import Avatar from '../common/Avatar';
 import type { User, Alert, Medication } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -20,6 +22,7 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
   const [activeAlert, setActiveAlert] = useState<Alert | null>(null);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [showMedReminder, setShowMedReminder] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Update clock every minute
   useEffect(() => {
@@ -162,18 +165,30 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
     });
   };
 
+  // Show profile view if selected
+  if (showProfile) {
+    return <PatientProfile onBack={() => setShowProfile(false)} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-cream via-white to-light-blue p-4">
       {/* Header with Large Clock */}
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
         <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-deep-navy mb-2">
-              Hello, {user.name}
-            </h1>
-            <p className="text-xl text-neutral-gray">
-              {formatDate(currentTime)}
-            </p>
+          <div className="flex items-center space-x-4">
+            <Avatar
+              src={user.profilePhoto || 'https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=400&fit=crop'}
+              name={user.name}
+              size="large"
+            />
+            <div>
+              <h1 className="text-3xl font-bold text-deep-navy mb-2">
+                Hello, {user.name}
+              </h1>
+              <p className="text-xl text-neutral-gray">
+                {formatDate(currentTime)}
+              </p>
+            </div>
           </div>
           <div className="flex items-start gap-4">
             <div className="text-right">
@@ -185,14 +200,24 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
                 <span>Home</span>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowProfile(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-mind-blue rounded-lg hover:bg-blue-100 transition-colors"
+                title="Profile"
+              >
+                <UserIcon className="w-5 h-5" />
+                <span className="hidden sm:inline">Profile</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

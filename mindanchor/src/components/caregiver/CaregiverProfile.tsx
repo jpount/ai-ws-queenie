@@ -1,42 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Save, User as UserIcon, Phone, Mail, MapPin, Calendar, Heart, Users, Plus, X, Camera } from 'lucide-react';
+import { ArrowLeft, Save, User as UserIcon, Phone, Mail, MapPin, Users, Plus, X, Shield, Camera } from 'lucide-react';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import Avatar from '../common/Avatar';
-import type { User, CaregiverRelationship } from '../../types';
+import type { User, PatientRelationship } from '../../types';
 import toast from 'react-hot-toast';
 
-interface PatientProfileProps {
+interface CaregiverProfileProps {
   onBack: () => void;
 }
 
-const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
+const CaregiverProfile: React.FC<CaregiverProfileProps> = ({ onBack }) => {
   const { user, updateProfile } = useAuthContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [showAddCaregiver, setShowAddCaregiver] = useState(false);
+  const [showAddPatient, setShowAddPatient] = useState(false);
   
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
     address: user?.address || '',
-    dateOfBirth: user?.dateOfBirth || '',
     emergencyContact: user?.emergencyContact || '',
-    medicalConditions: user?.medicalConditions || '',
     profilePhoto: user?.profilePhoto || ''
   });
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [newCaregiver, setNewCaregiver] = useState({
+  const [newPatient, setNewPatient] = useState({
     email: '',
     relationship: 'family' as 'family' | 'professional' | 'friend' | 'other',
     relationshipDetails: '',
     isPrimary: false
   });
 
-  const [caregivers, setCaregivers] = useState<CaregiverRelationship[]>(
-    user?.assignedCaregivers || []
+  const [patients, setPatients] = useState<PatientRelationship[]>(
+    user?.assignedPatients || []
   );
 
   useEffect(() => {
@@ -46,16 +44,14 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
         email: user.email || '',
         phone: user.phone || '',
         address: user.address || '',
-        dateOfBirth: user.dateOfBirth || '',
         emergencyContact: user.emergencyContact || '',
-        medicalConditions: user.medicalConditions || '',
         profilePhoto: user.profilePhoto || ''
       });
-      setCaregivers(user.assignedCaregivers || []);
+      setPatients(user.assignedPatients || []);
     }
   }, [user]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -78,7 +74,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
     try {
       await updateProfile({
         ...formData,
-        assignedCaregivers: caregivers
+        assignedPatients: patients
       });
       setIsEditing(false);
     } catch (error) {
@@ -88,47 +84,47 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
     }
   };
 
-  const handleAddCaregiver = async () => {
-    if (!newCaregiver.email) {
-      toast.error('Please enter caregiver email');
+  const handleAddPatient = async () => {
+    if (!newPatient.email) {
+      toast.error('Please enter patient email');
       return;
     }
 
     try {
-      // In production, this would search for the caregiver by email
-      const mockCaregiver: CaregiverRelationship = {
-        caregiverId: `cg-${Date.now()}`,
-        caregiverName: 'Sarah Johnson',
-        caregiverEmail: newCaregiver.email,
-        relationship: newCaregiver.relationship,
-        relationshipDetails: newCaregiver.relationshipDetails,
-        isPrimary: newCaregiver.isPrimary || caregivers.length === 0,
+      // In production, this would search for the patient by email
+      const mockPatient: PatientRelationship = {
+        patientId: `pt-${Date.now()}`,
+        patientName: 'John Smith',
+        patientEmail: newPatient.email,
+        relationship: newPatient.relationship,
+        relationshipDetails: newPatient.relationshipDetails,
+        isPrimary: newPatient.isPrimary,
         addedAt: new Date()
       };
 
-      setCaregivers([...caregivers, mockCaregiver]);
-      setShowAddCaregiver(false);
-      setNewCaregiver({
+      setPatients([...patients, mockPatient]);
+      setShowAddPatient(false);
+      setNewPatient({
         email: '',
         relationship: 'family',
         relationshipDetails: '',
         isPrimary: false
       });
-      toast.success('Caregiver added successfully!');
+      toast.success('Patient added successfully!');
     } catch (error) {
-      toast.error('Failed to add caregiver');
+      toast.error('Failed to add patient');
     }
   };
 
-  const handleRemoveCaregiver = (caregiverId: string) => {
-    setCaregivers(caregivers.filter(cg => cg.caregiverId !== caregiverId));
-    toast.success('Caregiver removed');
+  const handleRemovePatient = (patientId: string) => {
+    setPatients(patients.filter(pt => pt.patientId !== patientId));
+    toast.success('Patient removed');
   };
 
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-warm-cream via-white to-light-blue p-4">
+    <div className="min-h-screen bg-gradient-to-br from-light-blue via-white to-warm-cream p-4">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
         <div className="flex items-center justify-between">
@@ -145,7 +141,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-mind-blue text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-anchor-gold text-white rounded-lg hover:bg-yellow-600 transition-colors"
             >
               Edit Profile
             </button>
@@ -175,14 +171,14 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
         <div className="flex items-center space-x-6">
           <div className="relative">
             <Avatar
-              src={formData.profilePhoto || 'https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=400&fit=crop'}
+              src={formData.profilePhoto || 'https://images.unsplash.com/photo-1551861568-a692c419233e?w=400&h=400&fit=crop'}
               name={formData.name}
               size="xlarge"
             />
             {isEditing && (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 p-2 bg-mind-blue text-white rounded-full hover:bg-blue-600 transition-colors"
+                className="absolute bottom-0 right-0 p-2 bg-anchor-gold text-white rounded-full hover:bg-yellow-600 transition-colors"
               >
                 <Camera className="w-5 h-5" />
               </button>
@@ -197,12 +193,10 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
           </div>
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-deep-navy">{formData.name || 'Your Name'}</h2>
-            <p className="text-neutral-gray">Patient</p>
-            {formData.dateOfBirth && (
-              <p className="text-sm text-neutral-gray mt-1">
-                Age: {new Date().getFullYear() - new Date(formData.dateOfBirth).getFullYear()} years
-              </p>
-            )}
+            <p className="text-neutral-gray">Professional Caregiver</p>
+            <p className="text-sm text-neutral-gray mt-1">
+              Caring for {patients.length} {patients.length === 1 ? 'patient' : 'patients'}
+            </p>
           </div>
         </div>
       </div>
@@ -211,7 +205,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
         {/* Personal Information */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-deep-navy mb-6 flex items-center">
-            <UserIcon className="w-6 h-6 mr-2 text-mind-blue" />
+            <UserIcon className="w-6 h-6 mr-2 text-anchor-gold" />
             Personal Information
           </h2>
           
@@ -279,21 +273,6 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                <Calendar className="w-4 h-4 inline mr-1" />
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="dateOfBirth"
-                value={formData.dateOfBirth}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="w-full p-3 border border-gray-300 rounded-lg disabled:bg-gray-50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Emergency Contact
               </label>
               <input
@@ -309,37 +288,44 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Medical Information & Caregivers */}
+        {/* Professional Information & Patients */}
         <div className="space-y-6">
-          {/* Medical Conditions */}
+          {/* Professional Details */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-deep-navy mb-6 flex items-center">
-              <Heart className="w-6 h-6 mr-2 text-emergency-red" />
-              Medical Conditions
+              <Shield className="w-6 h-6 mr-2 text-anchor-gold" />
+              Caregiver Information
             </h2>
             
-            <textarea
-              name="medicalConditions"
-              value={formData.medicalConditions}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-              rows={4}
-              placeholder="List any medical conditions, allergies, or important health information..."
-              className="w-full p-3 border border-gray-300 rounded-lg disabled:bg-gray-50"
-            />
+            <div className="space-y-3">
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600">Account Type</p>
+                <p className="font-medium text-deep-navy">Professional Caregiver</p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600">Active Since</p>
+                <p className="font-medium text-deep-navy">
+                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                </p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600">Total Patients</p>
+                <p className="font-medium text-deep-navy">{patients.length}</p>
+              </div>
+            </div>
           </div>
 
-          {/* Caregivers */}
+          {/* Assigned Patients */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-deep-navy flex items-center">
-                <Users className="w-6 h-6 mr-2 text-anchor-gold" />
-                My Caregivers
+                <Users className="w-6 h-6 mr-2 text-mind-blue" />
+                My Patients
               </h2>
               {isEditing && (
                 <button
-                  onClick={() => setShowAddCaregiver(true)}
-                  className="px-3 py-1 bg-mind-blue text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-1"
+                  onClick={() => setShowAddPatient(true)}
+                  className="px-3 py-1 bg-anchor-gold text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center space-x-1"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add</span>
@@ -348,25 +334,25 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
             </div>
 
             <div className="space-y-3">
-              {caregivers.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No caregivers added yet</p>
+              {patients.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No patients assigned yet</p>
               ) : (
-                caregivers.map(caregiver => (
-                  <div key={caregiver.caregiverId} className="p-4 bg-gray-50 rounded-lg">
+                patients.map(patient => (
+                  <div key={patient.patientId} className="p-4 bg-gray-50 rounded-lg">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium text-deep-navy">{caregiver.caregiverName}</p>
-                        <p className="text-sm text-gray-600">{caregiver.caregiverEmail}</p>
+                        <p className="font-medium text-deep-navy">{patient.patientName}</p>
+                        <p className="text-sm text-gray-600">{patient.patientEmail}</p>
                         <p className="text-sm text-gray-500">
-                          {caregiver.relationship === 'other' && caregiver.relationshipDetails
-                            ? caregiver.relationshipDetails
-                            : caregiver.relationship.charAt(0).toUpperCase() + caregiver.relationship.slice(1)}
-                          {caregiver.isPrimary && ' • Primary'}
+                          {patient.relationship === 'other' && patient.relationshipDetails
+                            ? patient.relationshipDetails
+                            : patient.relationship.charAt(0).toUpperCase() + patient.relationship.slice(1)}
+                          {patient.isPrimary && ' • Primary Care'}
                         </p>
                       </div>
                       {isEditing && (
                         <button
-                          onClick={() => handleRemoveCaregiver(caregiver.caregiverId)}
+                          onClick={() => handleRemovePatient(patient.patientId)}
                           className="p-1 hover:bg-red-100 rounded transition-colors"
                         >
                           <X className="w-4 h-4 text-red-500" />
@@ -381,22 +367,22 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Add Caregiver Modal */}
-      {showAddCaregiver && (
+      {/* Add Patient Modal */}
+      {showAddPatient && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-deep-navy mb-4">Add Caregiver</h3>
+            <h3 className="text-xl font-bold text-deep-navy mb-4">Add Patient</h3>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Caregiver Email
+                  Patient Email
                 </label>
                 <input
                   type="email"
-                  value={newCaregiver.email}
-                  onChange={(e) => setNewCaregiver({ ...newCaregiver, email: e.target.value })}
-                  placeholder="caregiver@example.com"
+                  value={newPatient.email}
+                  onChange={(e) => setNewPatient({ ...newPatient, email: e.target.value })}
+                  placeholder="patient@example.com"
                   className="w-full p-3 border border-gray-300 rounded-lg"
                 />
               </div>
@@ -406,8 +392,8 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
                   Relationship Type
                 </label>
                 <select
-                  value={newCaregiver.relationship}
-                  onChange={(e) => setNewCaregiver({ ...newCaregiver, relationship: e.target.value as any })}
+                  value={newPatient.relationship}
+                  onChange={(e) => setNewPatient({ ...newPatient, relationship: e.target.value as any })}
                   className="w-full p-3 border border-gray-300 rounded-lg"
                 >
                   <option value="family">Family</option>
@@ -419,13 +405,13 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Relationship Details (e.g., Daughter, Nurse)
+                  Relationship Details (e.g., Parent, Client)
                 </label>
                 <input
                   type="text"
-                  value={newCaregiver.relationshipDetails}
-                  onChange={(e) => setNewCaregiver({ ...newCaregiver, relationshipDetails: e.target.value })}
-                  placeholder="Daughter"
+                  value={newPatient.relationshipDetails}
+                  onChange={(e) => setNewPatient({ ...newPatient, relationshipDetails: e.target.value })}
+                  placeholder="Parent"
                   className="w-full p-3 border border-gray-300 rounded-lg"
                 />
               </div>
@@ -434,28 +420,28 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
                 <input
                   type="checkbox"
                   id="isPrimary"
-                  checked={newCaregiver.isPrimary}
-                  onChange={(e) => setNewCaregiver({ ...newCaregiver, isPrimary: e.target.checked })}
+                  checked={newPatient.isPrimary}
+                  onChange={(e) => setNewPatient({ ...newPatient, isPrimary: e.target.checked })}
                   className="mr-2"
                 />
                 <label htmlFor="isPrimary" className="text-sm text-gray-700">
-                  Set as primary caregiver
+                  I am the primary caregiver for this patient
                 </label>
               </div>
             </div>
 
             <div className="flex space-x-2 mt-6">
               <button
-                onClick={() => setShowAddCaregiver(false)}
+                onClick={() => setShowAddPatient(false)}
                 className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={handleAddCaregiver}
-                className="flex-1 px-4 py-2 bg-mind-blue text-white rounded-lg hover:bg-blue-600 transition-colors"
+                onClick={handleAddPatient}
+                className="flex-1 px-4 py-2 bg-anchor-gold text-white rounded-lg hover:bg-yellow-600 transition-colors"
               >
-                Add Caregiver
+                Add Patient
               </button>
             </div>
           </div>
@@ -465,4 +451,4 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
   );
 };
 
-export default PatientProfile;
+export default CaregiverProfile;

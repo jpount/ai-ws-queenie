@@ -122,6 +122,35 @@ export const authService = {
         callback(null);
       }
     });
+  },
+
+  async updateProfile(userId: string, updates: Partial<User>): Promise<void> {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        ...updates,
+        lastActive: serverTimestamp()
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw new Error('Failed to update profile');
+    }
+  },
+
+  async addRelationship(
+    userId: string,
+    targetEmail: string,
+    relationship: any,
+    userType: 'patient' | 'caregiver'
+  ): Promise<void> {
+    try {
+      // In production, this would search for the target user by email
+      // and establish a bidirectional relationship
+      console.log('Adding relationship:', { userId, targetEmail, relationship, userType });
+    } catch (error) {
+      console.error('Error adding relationship:', error);
+      throw new Error('Failed to add relationship');
+    }
   }
 };
 
@@ -184,6 +213,27 @@ export const demoAuth = {
     
     // Return unsubscribe function
     return () => {};
+  },
+
+  async updateProfile(userId: string, updates: Partial<User>): Promise<User> {
+    const storedUser = localStorage.getItem('mindanchor-user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      const updatedUser = { ...user, ...updates, lastActive: new Date() };
+      localStorage.setItem('mindanchor-user', JSON.stringify(updatedUser));
+      return updatedUser;
+    }
+    throw new Error('User not found');
+  },
+
+  async addRelationship(
+    userId: string,
+    targetEmail: string,
+    relationship: any,
+    userType: 'patient' | 'caregiver'
+  ): Promise<void> {
+    // In demo mode, just log the relationship
+    console.log('Demo: Adding relationship:', { userId, targetEmail, relationship, userType });
   }
 };
 

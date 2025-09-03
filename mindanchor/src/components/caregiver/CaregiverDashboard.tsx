@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Activity, Calendar, Settings, ChevronRight, Heart, MapPin, Clock, Phone, Shield, LogOut } from 'lucide-react';
+import { Users, Activity, Calendar, Settings, ChevronRight, Heart, MapPin, Clock, Phone, Shield, LogOut, User as UserIcon } from 'lucide-react';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import AlertsDashboard from './AlertsDashboard';
 import PatientMonitor from './PatientMonitor';
+import CaregiverProfile from './CaregiverProfile';
+import Avatar from '../common/Avatar';
 import type { User } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -11,7 +13,7 @@ interface CaregiverDashboardProps {
   user: User;
 }
 
-type ViewMode = 'overview' | 'alerts' | 'patients' | 'schedule';
+type ViewMode = 'overview' | 'alerts' | 'patients' | 'schedule' | 'profile';
 
 const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ user }) => {
   const navigate = useNavigate();
@@ -151,6 +153,9 @@ const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ user }) => {
             </div>
           </div>
         );
+      
+      case 'profile':
+        return <CaregiverProfile onBack={() => setViewMode('alerts')} />;
       
       case 'schedule':
         return (
@@ -295,15 +300,26 @@ const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ user }) => {
             <span className="font-medium">Overview</span>
             {viewMode === 'overview' && <ChevronRight className="w-4 h-4 ml-auto" />}
           </button>
+          
+          <button
+            onClick={() => setViewMode('profile')}
+            className={`w-full flex items-center space-x-3 p-3 rounded-lg mb-2 transition-colors ${
+              viewMode === 'profile' ? 'bg-mind-blue text-white' : 'hover:bg-gray-100 text-deep-navy'
+            }`}
+          >
+            <UserIcon className="w-5 h-5" />
+            <span className="font-medium">My Profile</span>
+            {viewMode === 'profile' && <ChevronRight className="w-4 h-4 ml-auto" />}
+          </button>
         </nav>
         
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
           <div className="flex items-center space-x-3 mb-3">
-            <div className="w-10 h-10 bg-anchor-gold rounded-full flex items-center justify-center">
-              <span className="text-white font-bold">
-                {user.name.split(' ').map(n => n[0]).join('')}
-              </span>
-            </div>
+            <Avatar
+              src={user.profilePhoto || 'https://images.unsplash.com/photo-1551861568-a692c419233e?w=400&h=400&fit=crop'}
+              name={user.name}
+              size="small"
+            />
             <div className="flex-1">
               <p className="font-medium text-deep-navy">{user.name}</p>
               <p className="text-xs text-neutral-gray">Caregiver</p>

@@ -11,6 +11,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
   clearError: () => void;
 }
 
@@ -96,6 +97,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (updates: Partial<User>) => {
+    if (!user) {
+      throw new Error('No user logged in');
+    }
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      const updatedUser = await useAuth.updateProfile(user.id, updates);
+      setUser(updatedUser);
+      toast.success('Profile updated successfully');
+    } catch (err) {
+      const message = (err as Error).message || 'Failed to update profile';
+      setError(message);
+      toast.error(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const clearError = () => setError(null);
 
   return (
@@ -107,6 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
+        updateProfile,
         clearError
       }}
     >
