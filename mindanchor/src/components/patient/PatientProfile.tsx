@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Save, User as UserIcon, Phone, Mail, MapPin, Calendar, Heart, Users, Plus, X, Camera } from 'lucide-react';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import Avatar from '../common/Avatar';
-import type { User, CaregiverRelationship } from '../../types';
+import type { CaregiverRelationship } from '../../types';
 import toast from 'react-hot-toast';
 
 interface PatientProfileProps {
@@ -15,6 +15,9 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [showAddCaregiver, setShowAddCaregiver] = useState(false);
   
+  // Default profile photo for Asian elderly lady
+  const defaultProfilePhoto = 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=400&fit=crop&crop=faces&q=80';
+  
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -23,7 +26,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
     dateOfBirth: user?.dateOfBirth || '',
     emergencyContact: user?.emergencyContact || '',
     medicalConditions: user?.medicalConditions || '',
-    profilePhoto: user?.profilePhoto || ''
+    profilePhoto: user?.profilePhoto || defaultProfilePhoto
   });
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +52,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
         dateOfBirth: user.dateOfBirth || '',
         emergencyContact: user.emergencyContact || '',
         medicalConditions: user.medicalConditions || '',
-        profilePhoto: user.profilePhoto || ''
+        profilePhoto: user.profilePhoto || defaultProfilePhoto
       });
       setCaregivers(user.assignedCaregivers || []);
     }
@@ -175,7 +178,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ onBack }) => {
         <div className="flex items-center space-x-6">
           <div className="relative">
             <Avatar
-              src={formData.profilePhoto || 'https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=400&fit=crop'}
+              src={formData.profilePhoto}
               name={formData.name}
               size="xlarge"
             />

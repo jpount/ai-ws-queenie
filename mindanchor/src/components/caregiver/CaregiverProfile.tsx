@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Save, User as UserIcon, Phone, Mail, MapPin, Users, Plus, X, Shield, Camera } from 'lucide-react';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import Avatar from '../common/Avatar';
-import type { User, PatientRelationship } from '../../types';
+import type { PatientRelationship } from '../../types';
 import toast from 'react-hot-toast';
 
 interface CaregiverProfileProps {
@@ -15,13 +15,16 @@ const CaregiverProfile: React.FC<CaregiverProfileProps> = ({ onBack }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [showAddPatient, setShowAddPatient] = useState(false);
   
+  // Default profile photo for caregiver
+  const defaultProfilePhoto = 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop&crop=faces&q=80';
+  
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
     address: user?.address || '',
     emergencyContact: user?.emergencyContact || '',
-    profilePhoto: user?.profilePhoto || ''
+    profilePhoto: user?.profilePhoto || defaultProfilePhoto
   });
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +48,7 @@ const CaregiverProfile: React.FC<CaregiverProfileProps> = ({ onBack }) => {
         phone: user.phone || '',
         address: user.address || '',
         emergencyContact: user.emergencyContact || '',
-        profilePhoto: user.profilePhoto || ''
+        profilePhoto: user.profilePhoto || defaultProfilePhoto
       });
       setPatients(user.assignedPatients || []);
     }

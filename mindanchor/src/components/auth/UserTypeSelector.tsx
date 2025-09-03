@@ -1,6 +1,6 @@
 import React from 'react';
 import type { UserType } from '../../types';
-import { Users, Heart, HandHeart } from 'lucide-react';
+import { Users, Heart } from 'lucide-react';
 
 interface UserTypeSelectorProps {
   selected: UserType | null;
@@ -18,22 +18,15 @@ const UserTypeSelector: React.FC<UserTypeSelectorProps> = ({ selected, onSelect 
     },
     {
       type: 'caregiver' as UserType,
-      title: 'Caregiver',
+      title: 'Caregiver / Volunteer',
       description: 'I provide care and respond to alerts',
       icon: Users,
       color: 'bg-anchor-gold'
-    },
-    {
-      type: 'volunteer' as UserType,
-      title: 'Volunteer',
-      description: 'I want to help my community',
-      icon: HandHeart,
-      color: 'bg-alert-cyan'
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {types.map((item) => {
         const Icon = item.icon;
         const isSelected = selected === item.type;

@@ -316,7 +316,7 @@ const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ user }) => {
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
           <div className="flex items-center space-x-3 mb-3">
             <Avatar
-              src={user.profilePhoto || 'https://images.unsplash.com/photo-1551861568-a692c419233e?w=400&h=400&fit=crop'}
+              src={user.profilePhoto || 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop&crop=faces&q=80'}
               name={user.name}
               size="small"
             />

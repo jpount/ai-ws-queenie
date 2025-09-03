@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Pill, MapPin, Phone, Activity, LogOut, CheckCircle, User as UserIcon } from 'lucide-react';
+import { Clock, Pill, MapPin, Phone, Activity, LogOut, CheckCircle, User as UserIcon, PhoneCall, PhoneOff } from 'lucide-react';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import SOSButton from './SOSButton';
 import MedicationReminder from './MedicationReminder';
@@ -9,6 +9,7 @@ import type { PillShape, PillColor } from './MedicineVisual';
 import PatientProfile from './PatientProfile';
 import Avatar from '../common/Avatar';
 import type { User, Alert, Medication } from '../../types';
+import { makeDemoCall } from '../../services/twilioService';
 import toast from 'react-hot-toast';
 
 interface PatientDashboardProps {
@@ -23,6 +24,7 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [showMedReminder, setShowMedReminder] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [callingContact, setCallingContact] = useState<string | null>(null);
 
   // Update clock every minute
   useEffect(() => {
@@ -132,6 +134,32 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
     }
   };
 
+  const handlePhoneCall = async (phoneNumber: string, contactName: string) => {
+    try {
+      setCallingContact(contactName);
+      toast.loading(`Calling ${contactName}...`, { id: 'calling' });
+      
+      // Use the demo call function which will work without Twilio credentials
+      await makeDemoCall(phoneNumber, user.name);
+      
+      toast.dismiss('calling');
+      toast.success(`Connected to ${contactName}`, {
+        icon: '📞',
+        duration: 4000
+      });
+      
+      // Simulate call end after 3 seconds in demo mode
+      setTimeout(() => {
+        setCallingContact(null);
+      }, 3000);
+    } catch (error) {
+      toast.dismiss('calling');
+      toast.error('Failed to make call. Please try again.');
+      setCallingContact(null);
+      console.error('Call error:', error);
+    }
+  };
+
   const handleMedicationResponse = (medId: string, response: 'taken' | 'skipped') => {
     setMedications(prev => 
       prev.map(med => 
@@ -177,7 +205,7 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
         <div className="flex justify-between items-start">
           <div className="flex items-center space-x-4">
             <Avatar
-              src={user.profilePhoto || 'https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=400&fit=crop'}
+              src={user.profilePhoto || 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=400&fit=crop&crop=faces&q=80'}
               name={user.name}
               size="large"
             />
@@ -314,20 +342,48 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
             </h3>
             
             <div className="space-y-3">
-              <button className="w-full p-4 bg-blue-50 rounded-lg flex items-center justify-between hover:bg-blue-100 transition-colors">
+              <button 
+                onClick={() => handlePhoneCall('+6591829532', 'Sarah (Daughter)')}
+                disabled={callingContact !== null}
+                className={`w-full p-4 rounded-lg flex items-center justify-between transition-all ${
+                  callingContact === 'Sarah (Daughter)' 
+                    ? 'bg-green-100 animate-pulse' 
+                    : 'bg-blue-50 hover:bg-blue-100'
+                } ${callingContact && callingContact !== 'Sarah (Daughter)' ? 'opacity-50' : ''}`}
+              >
                 <div className="text-left">
                   <p className="font-medium text-deep-navy">Sarah (Daughter)</p>
-                  <p className="text-sm text-neutral-gray">Primary Caregiver</p>
+                  <p className="text-sm text-neutral-gray">
+                    {callingContact === 'Sarah (Daughter)' ? 'Calling...' : 'Primary Caregiver'}
+                  </p>
                 </div>
-                <Phone className="w-6 h-6 text-mind-blue" />
+                {callingContact === 'Sarah (Daughter)' ? (
+                  <PhoneCall className="w-6 h-6 text-green-600 animate-bounce" />
+                ) : (
+                  <Phone className="w-6 h-6 text-mind-blue" />
+                )}
               </button>
               
-              <button className="w-full p-4 bg-orange-50 rounded-lg flex items-center justify-between hover:bg-orange-100 transition-colors">
+              <button 
+                onClick={() => handlePhoneCall('+6512345678', 'Dr. Johnson')}
+                disabled={callingContact !== null}
+                className={`w-full p-4 rounded-lg flex items-center justify-between transition-all ${
+                  callingContact === 'Dr. Johnson' 
+                    ? 'bg-green-100 animate-pulse' 
+                    : 'bg-orange-50 hover:bg-orange-100'
+                } ${callingContact && callingContact !== 'Dr. Johnson' ? 'opacity-50' : ''}`}
+              >
                 <div className="text-left">
                   <p className="font-medium text-deep-navy">Dr. Johnson</p>
-                  <p className="text-sm text-neutral-gray">Family Doctor</p>
+                  <p className="text-sm text-neutral-gray">
+                    {callingContact === 'Dr. Johnson' ? 'Calling...' : 'Family Doctor'}
+                  </p>
                 </div>
-                <Phone className="w-6 h-6 text-anchor-gold" />
+                {callingContact === 'Dr. Johnson' ? (
+                  <PhoneCall className="w-6 h-6 text-green-600 animate-bounce" />
+                ) : (
+                  <Phone className="w-6 h-6 text-anchor-gold" />
+                )}
               </button>
             </div>
           </div>
