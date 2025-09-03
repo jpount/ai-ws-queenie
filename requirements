@@ -1,0 +1,409 @@
+# SOFTWARE REQUIREMENTS SPECIFICATION
+## Emergency Response Platform - MVP1
+
+**Document Version:** 1.0  
+**Date:** September 3, 2025  
+**Project Code:** ERP-MVP1  
+**Build Timeline:** 3 Hours  
+
+---
+
+## DOCUMENT CONTROL
+
+| Version | Date | Author | Description |
+|---------|------|--------|-------------|
+| 1.0 | 2025-09-03 | Product Team | Initial MVP1 Requirements |
+
+**Document Status:** APPROVED FOR DEVELOPMENT  
+**Review Status:** Fast-Track Approved  
+
+---
+
+## EXECUTIVE SUMMARY
+
+### Project Overview
+The Emergency Response Platform (ERP) is a mobile application system designed to provide immediate emergency assistance for vulnerable individuals, particularly elderly patients with cognitive conditions such as dementia. The platform connects patients with caregivers and community volunteers through real-time alerts and location-based services.
+
+### MVP1 Scope
+This document defines requirements for a 3-hour development sprint to create a functional demonstration prototype. The MVP focuses on core emergency response capabilities with medication reminder features.
+
+### Key Stakeholders
+- **Primary Users:** Elderly patients with dementia or cognitive impairment
+- **Secondary Users:** Professional caregivers and family caregivers
+- **Tertiary Users:** Community volunteers (registration only in MVP1)
+
+---
+
+## 1. FUNCTIONAL REQUIREMENTS
+
+### 1.1 Epic 0: Foundational Platform (30 minutes)
+
+#### 1.1.1 Authentication & User Management
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| FR-001 | System SHALL provide face recognition login capability using device biometric APIs or mock implementation | CRITICAL |
+| FR-002 | System SHALL maintain persistent user sessions for 30 days on trusted devices | HIGH |
+| FR-003 | System SHALL allow users to select persona type (patient/caregiver/volunteer) during registration | CRITICAL |
+| FR-004 | System SHALL store user credentials in persistent database (Firebase/Supabase) | CRITICAL |
+| FR-005 | System SHALL support fallback phone number authentication if face recognition fails | HIGH |
+
+#### 1.1.2 Core Infrastructure
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| FR-006 | System SHALL establish real-time WebSocket connection for alert broadcasting | CRITICAL |
+| FR-007 | System SHALL capture and store GPS coordinates with timestamp accuracy to 10 meters | CRITICAL |
+| FR-008 | System SHALL calculate distance between GPS coordinates using Haversine formula | HIGH |
+| FR-009 | System SHALL broadcast emergency messages to all connected clients within 3 seconds | CRITICAL |
+| FR-010 | System SHALL implement database schema for users, alerts, and medications tables | CRITICAL |
+
+### 1.2 Epic 1: Patient Persona (45 minutes)
+
+#### 1.2.1 Emergency SOS Features
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| FR-011 | System SHALL display red SOS button with minimum dimensions of 200x200 pixels | CRITICAL |
+| FR-012 | System SHALL trigger emergency alert within 2 seconds of SOS button press | CRITICAL |
+| FR-013 | System SHALL capture patient's current GPS location upon SOS activation | CRITICAL |
+| FR-014 | System SHALL display "Help is coming" confirmation message within 1 second of activation | CRITICAL |
+| FR-015 | System SHALL show list of responding caregivers with real-time ETA updates | HIGH |
+| FR-016 | System SHALL allow SOS activation without authentication requirement | CRITICAL |
+
+#### 1.2.2 Medication Reminder System
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| FR-017 | System SHALL display medication reminder popup at scheduled times (±30 seconds accuracy) | CRITICAL |
+| FR-018 | System SHALL show medication name, dosage, and optional pill image in reminder | HIGH |
+| FR-019 | System SHALL provide "Taken" and "Skip" buttons minimum 150x75 pixels each | CRITICAL |
+| FR-020 | System SHALL record patient's medication response with timestamp | CRITICAL |
+| FR-021 | System SHALL transmit compliance status to assigned caregiver in real-time | HIGH |
+| FR-022 | System SHALL display countdown to next scheduled medication | MEDIUM |
+
+### 1.3 Epic 2: Caregiver Persona (45 minutes)
+
+#### 1.3.1 Alert Management System
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| FR-023 | System SHALL display emergency alerts from all assigned patients | CRITICAL |
+| FR-024 | System SHALL display emergency alerts from ANY patient within 1-mile radius | CRITICAL |
+| FR-025 | System SHALL show patient name, medical condition, and distance on alert card | CRITICAL |
+| FR-026 | System SHALL allow caregiver to tap "I'm responding" to acknowledge alert | CRITICAL |
+| FR-027 | System SHALL calculate and display estimated arrival time based on distance | HIGH |
+| FR-028 | System SHALL update alert status to "Responded" when first caregiver acknowledges | CRITICAL |
+
+#### 1.3.2 Caregiver Community Network
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| FR-029 | System SHALL identify all active caregivers within 1-mile radius of emergency | CRITICAL |
+| FR-030 | System SHALL broadcast alerts to nearby caregivers regardless of patient assignment | CRITICAL |
+| FR-031 | System SHALL display list of all responding caregivers with distances and ETAs | HIGH |
+| FR-032 | System SHALL prevent alert duplication once adequate response is confirmed | MEDIUM |
+| FR-033 | System SHALL show caregiver type (Assigned/Nearby) on response list | MEDIUM |
+
+#### 1.3.3 Patient Monitoring Dashboard
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| FR-034 | System SHALL display medication compliance status for last 24 hours | HIGH |
+| FR-035 | System SHALL show patient location on interactive map (Google Maps/Mapbox) | HIGH |
+| FR-036 | System SHALL indicate last medication taken/skipped with timestamp | HIGH |
+| FR-037 | System SHALL maintain audit log of all patient interactions | MEDIUM |
+
+### 1.4 Epic 3: Volunteer Registry (30 minutes)
+
+#### 1.4.1 Volunteer Registration
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| FR-038 | System SHALL provide registration form with fields: name, phone, email, location | HIGH |
+| FR-039 | System SHALL store volunteer profiles in separate database table | HIGH |
+| FR-040 | System SHALL display "Thank you for registering" confirmation message | MEDIUM |
+| FR-041 | System SHALL mark all volunteers as "Pending Activation - Phase 2" status | LOW |
+| FR-042 | System SHALL capture volunteer availability radius preference (default 1 mile) | LOW |
+
+---
+
+## 2. NON-FUNCTIONAL REQUIREMENTS
+
+### 2.1 Performance Requirements
+
+| Req ID | Description | Target | Priority |
+|--------|-------------|--------|----------|
+| NFR-001 | Emergency alert propagation time | ≤ 3 seconds | CRITICAL |
+| NFR-002 | Face recognition completion time | ≤ 2 seconds | HIGH |
+| NFR-003 | Map rendering with location display | ≤ 2 seconds | HIGH |
+| NFR-004 | Medication reminder trigger accuracy | ± 30 seconds | HIGH |
+| NFR-005 | Application startup time | ≤ 5 seconds | MEDIUM |
+| NFR-006 | Database query response time | ≤ 500ms | HIGH |
+
+### 2.2 Reliability Requirements
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| NFR-007 | System MUST maintain WebSocket connection with automatic reconnection on failure | CRITICAL |
+| NFR-008 | System MUST queue alerts locally if connection is temporarily lost | HIGH |
+| NFR-009 | System MUST persist critical data through application crashes | HIGH |
+| NFR-010 | System MUST support minimum 3 concurrent users for demo | CRITICAL |
+| NFR-011 | System MUST achieve 100% uptime during 5-minute demonstration | CRITICAL |
+
+### 2.3 Usability Requirements
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| NFR-012 | All critical actions MUST be accessible within 2 taps/clicks | CRITICAL |
+| NFR-013 | SOS button MUST be reachable with single tap from home screen | CRITICAL |
+| NFR-014 | Minimum font size of 18pt for patient interface elements | HIGH |
+| NFR-015 | Minimum button size of 44x44pt for touch targets (iOS HIG standard) | HIGH |
+| NFR-016 | High contrast ratio of 4.5:1 for text elements | MEDIUM |
+| NFR-017 | Visual feedback within 100ms for all user interactions | HIGH |
+
+### 2.4 Security Requirements
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| NFR-018 | System MUST use HTTPS for all API communications | HIGH |
+| NFR-019 | Location data MUST only be shared during active emergency state | CRITICAL |
+| NFR-020 | Face biometric data MUST be stored as encrypted hash only | HIGH |
+| NFR-021 | System MUST implement rate limiting for failed login attempts (3 max) | MEDIUM |
+| NFR-022 | Volunteer data MUST be logically separated from patient data | MEDIUM |
+
+### 2.5 Compatibility Requirements
+
+| Req ID | Description | Priority |
+|--------|-------------|----------|
+| NFR-023 | System MUST function on iOS 14.0+ devices | CRITICAL |
+| NFR-024 | System MUST function on Android 10+ (API 29+) devices | CRITICAL |
+| NFR-025 | System MUST support screen sizes from 5" to 10" diagonal | HIGH |
+| NFR-026 | System MUST operate on 4G LTE or WiFi connections | CRITICAL |
+| NFR-027 | System MUST function in Chrome, Safari, and Firefox browsers (if web-based) | MEDIUM |
+
+---
+
+## 3. DATA REQUIREMENTS
+
+### 3.1 Data Models
+
+#### 3.1.1 User Profile Schema
+```
+users {
+  user_id: UUID (Primary Key)
+  name: VARCHAR(100)
+  phone: VARCHAR(20)
+  email: VARCHAR(100) - Optional
+  user_type: ENUM('patient', 'caregiver', 'volunteer')
+  location_lat: DECIMAL(10, 8)
+  location_lng: DECIMAL(11, 8)
+  profile_photo: TEXT - Optional
+  face_biometric_hash: TEXT - Encrypted
+  assigned_patients: ARRAY<UUID> - Caregiver only
+  medical_conditions: TEXT - Patient only
+  created_at: TIMESTAMP
+  last_active: TIMESTAMP
+}
+```
+
+#### 3.1.2 Medication Record Schema
+```
+medications {
+  medication_id: UUID (Primary Key)
+  patient_id: UUID (Foreign Key)
+  medication_name: VARCHAR(100)
+  dosage: VARCHAR(50)
+  schedule_time: TIME
+  last_taken: TIMESTAMP
+  last_response: ENUM('taken', 'skipped', 'pending')
+  pill_image_url: TEXT - Optional
+  active: BOOLEAN
+  created_at: TIMESTAMP
+}
+```
+
+#### 3.1.3 Emergency Alert Schema
+```
+alerts {
+  alert_id: UUID (Primary Key)
+  patient_id: UUID (Foreign Key)
+  patient_location_lat: DECIMAL(10, 8)
+  patient_location_lng: DECIMAL(11, 8)
+  alert_timestamp: TIMESTAMP
+  alert_status: ENUM('active', 'responded', 'resolved', 'cancelled')
+  severity: ENUM('emergency', 'urgent', 'routine')
+  responders: JSONB [{
+    caregiver_id: UUID,
+    response_time: TIMESTAMP,
+    eta_minutes: INTEGER,
+    distance_miles: DECIMAL(4, 2),
+    status: ENUM('notified', 'acknowledged', 'en_route', 'arrived')
+  }]
+  resolved_at: TIMESTAMP - Optional
+  resolved_by: UUID - Optional
+}
+```
+
+### 3.2 Data Volume Estimates (MVP Demo)
+- Users: 10-20 records
+- Medications: 20-40 records  
+- Alerts: 5-10 records
+- Total Database Size: < 1 MB
+
+---
+
+## 4. INTERFACE REQUIREMENTS
+
+### 4.1 User Interface Standards
+
+| Component | Specification |
+|-----------|--------------|
+| SOS Button | Minimum 200x200px, Red (#FF0000), Circular with high contrast border |
+| Medication Buttons | Minimum 150x75px, Green (#28A745) for "Taken", Yellow (#FFC107) for "Skip" |
+| Alert Cards | Full width, minimum height 120px, Critical alerts in Red banner |
+| Typography | System fonts, minimum 18pt for body, 24pt for headers |
+| Color Scheme | High contrast, WCAG AA compliant combinations |
+| Loading States | Spinner or skeleton screens for all async operations |
+
+### 4.2 External Interfaces
+
+| Interface | Type | Purpose |
+|-----------|------|---------|
+| Firebase/Supabase | API | Database and real-time sync |
+| Google Maps API | SDK | Location display and routing |
+| Device Biometric | Native API | Face recognition authentication |
+| WebSocket | Protocol | Real-time alert broadcasting |
+| GPS/Location Services | Device API | Location capture |
+
+---
+
+## 5. CONSTRAINTS & ASSUMPTIONS
+
+### 5.1 Technical Constraints
+- Development time limited to 3 hours
+- Must use existing cloud services (no custom backend)
+- Limited to mock implementations where necessary
+- No App Store deployment required
+- Demo environment only (not production-ready)
+
+### 5.2 Assumptions
+- Demo devices will have active internet connectivity
+- GPS/Location services will be enabled on all devices
+- All demo participants are co-located for optimal performance
+- Face recognition can be mocked for demonstration
+- Maximum of 4-5 concurrent users during demo
+
+### 5.3 Dependencies
+- Firebase/Supabase service availability
+- Google Maps API quota availability
+- React Native/Flutter framework compatibility
+- Expo Go app for deployment (if using React Native)
+
+---
+
+## 6. ACCEPTANCE CRITERIA
+
+### 6.1 Demo Success Criteria
+
+| ID | Criteria | Pass/Fail |
+|----|----------|-----------|
+| AC-001 | Patient can trigger SOS with single button press | [ ] |
+| AC-002 | GPS location captured and transmitted with alert | [ ] |
+| AC-003 | Assigned caregiver receives alert within 3 seconds | [ ] |
+| AC-004 | Nearby caregivers (1 mile) receive alert regardless of assignment | [ ] |
+| AC-005 | Multiple caregivers can respond with ETA | [ ] |
+| AC-006 | Patient sees list of responding caregivers | [ ] |
+| AC-007 | Medication reminder appears at scheduled time | [ ] |
+| AC-008 | Patient can respond to medication reminder | [ ] |
+| AC-009 | Caregiver dashboard shows medication compliance | [ ] |
+| AC-010 | Complete emergency flow executes in under 10 seconds | [ ] |
+
+### 6.2 Technical Acceptance Criteria
+- Zero application crashes during 5-minute demonstration
+- All core features accessible within 2 taps
+- Successful data persistence across app restarts
+- Successful operation on both iOS and Android devices
+
+---
+
+## 7. RISK ASSESSMENT
+
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| WebSocket connection failure | HIGH | MEDIUM | Implement reconnection logic, queue messages |
+| GPS accuracy issues indoors | MEDIUM | HIGH | Use last known location, allow manual entry |
+| Face recognition failure | LOW | HIGH | Use mock implementation for demo |
+| Time overrun | HIGH | HIGH | Focus on critical path only, defer nice-to-haves |
+| Database sync delays | MEDIUM | MEDIUM | Use local state with optimistic updates |
+
+---
+
+## 8. OUT OF SCOPE
+
+The following items are explicitly excluded from MVP1:
+- Real biometric face recognition implementation
+- SMS/Text message notifications
+- Voice activation features
+- Historical reporting and analytics
+- Multi-language support
+- Offline mode functionality
+- Background location tracking
+- Push notifications (app remains open for demo)
+- Volunteer alert routing (registration only)
+- Administrative dashboard
+- Data encryption at rest
+- HIPAA compliance measures
+- App Store/Play Store deployment
+- User authentication for emergency features
+- Advanced matching algorithms
+- Payment processing
+- Insurance integration
+- Electronic health record integration
+
+---
+
+## 9. APPENDICES
+
+### Appendix A: Technology Stack Recommendations
+- **Frontend:** React Native with Expo or Flutter
+- **Backend:** Supabase or Firebase
+- **Real-time:** Supabase Realtime or Firebase Realtime Database
+- **Maps:** Google Maps SDK or Mapbox
+- **Deployment:** Expo Go (development builds)
+
+### Appendix B: Demo Environment Setup
+1. Prepare 4 devices with app pre-installed
+2. Create demo user accounts (Dorothy-Patient, John-Caregiver, Sarah-Caregiver, Mike-Volunteer)
+3. Pre-configure medication schedule for demo timing
+4. Set GPS locations for realistic distances
+5. Ensure stable WiFi connection for all devices
+
+### Appendix C: Sprint Timeline
+- **0:00-0:30** - Epic 0: Foundation setup
+- **0:30-1:15** - Epic 1: Patient features
+- **1:15-2:00** - Epic 2: Caregiver features
+- **2:00-2:30** - Epic 3: Volunteer registration
+- **2:30-3:00** - Integration and demo preparation
+
+---
+
+## 10. APPROVAL SIGNATURES
+
+| Role | Name | Signature | Date |
+|------|------|-----------|------|
+| Product Owner | _____________ | _____________ | _____ |
+| Technical Lead | _____________ | _____________ | _____ |
+| Development Team Lead | _____________ | _____________ | _____ |
+| QA Representative | _____________ | _____________ | _____ |
+
+---
+
+**Document End**
+
+*This Software Requirements Specification is approved for immediate implementation for MVP1 demonstration purposes only. Production deployment will require additional requirements analysis and compliance review.*
+
+---
+*Generated: September 3, 2025*  
+*Classification: Internal Use Only*  
+*© 2025 Emergency Response Platform Team*
