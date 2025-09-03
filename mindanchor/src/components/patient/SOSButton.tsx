@@ -8,7 +8,7 @@ interface SOSButtonProps {
   onEmergency?: (location: { lat: number; lng: number }) => void;
 }
 
-const SOSButton: React.FC<SOSButtonProps> = ({ patientId, patientName, onEmergency }) => {
+const SOSButton: React.FC<SOSButtonProps> = ({ patientName, onEmergency }) => {
   const [isActive, setIsActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [helpComing, setHelpComing] = useState(false);

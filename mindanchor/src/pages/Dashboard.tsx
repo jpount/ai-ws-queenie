@@ -3,6 +3,8 @@ import { useAuthContext } from '../hooks/useAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Heart, Users, HandHeart } from 'lucide-react';
 import Logo from '../components/common/Logo';
+import PatientDashboard from '../components/patient/PatientDashboard';
+import CaregiverDashboard from '../components/caregiver/CaregiverDashboard';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuthContext();
@@ -15,14 +17,15 @@ const Dashboard: React.FC = () => {
 
   if (!user) return null;
 
-  const getUserIcon = () => {
+  const getUserIcon = (size: 'small' | 'large' = 'large') => {
+    const className = size === 'small' ? 'w-3 h-3 text-white' : 'w-8 h-8 text-white';
     switch (user.userType) {
       case 'patient':
-        return <Heart className="w-8 h-8 text-white" />;
+        return <Heart className={className} />;
       case 'caregiver':
-        return <Users className="w-8 h-8 text-white" />;
+        return <Users className={className} />;
       case 'volunteer':
-        return <HandHeart className="w-8 h-8 text-white" />;
+        return <HandHeart className={className} />;
       default:
         return null;
     }
@@ -41,6 +44,15 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Render specialized dashboards based on user type
+  if (user.userType === 'patient') {
+    return <PatientDashboard user={user} />;
+  }
+  
+  if (user.userType === 'caregiver') {
+    return <CaregiverDashboard user={user} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-light-blue via-white to-warm-cream">
       {/* Header */}
@@ -55,7 +67,7 @@ const Dashboard: React.FC = () => {
                 </h1>
                 <p className="text-sm text-neutral-gray capitalize flex items-center gap-2">
                   <span className={`w-5 h-5 rounded-full flex items-center justify-center ${getUserTypeColor()}`}>
-                    {React.cloneElement(getUserIcon() as React.ReactElement, { className: 'w-3 h-3 text-white' })}
+                    {getUserIcon('small')}
                   </span>
                   {user.userType} Dashboard
                 </p>
@@ -116,14 +128,10 @@ const Dashboard: React.FC = () => {
           {/* Feature Placeholder */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
             <h3 className="text-lg font-heading font-semibold text-deep-navy mb-2">
-              {user.userType === 'patient' && 'Patient Features Coming Soon'}
-              {user.userType === 'caregiver' && 'Caregiver Features Coming Soon'}
-              {user.userType === 'volunteer' && 'Thank You for Volunteering!'}
+              Thank You for Volunteering!
             </h3>
             <p className="text-neutral-gray">
-              {user.userType === 'patient' && 'SOS button, medication reminders, and emergency alerts will be available here.'}
-              {user.userType === 'caregiver' && 'Alert dashboard, patient monitoring, and response features will be available here.'}
-              {user.userType === 'volunteer' && 'Your registration is pending activation. We will notify you when volunteer features are available.'}
+              Your registration is pending activation. We will notify you when volunteer features are available.
             </p>
           </div>
         </div>
