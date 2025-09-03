@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Pill, MapPin, Phone, Activity, LogOut } from 'lucide-react';
+import { Clock, Pill, MapPin, Phone, Activity, LogOut, CheckCircle } from 'lucide-react';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import SOSButton from './SOSButton';
 import MedicationReminder from './MedicationReminder';
+import MedicineVisual from './MedicineVisual';
+import type { PillShape, PillColor } from './MedicineVisual';
 import type { User, Alert, Medication } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -26,6 +28,25 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
     }, 60000);
     return () => clearInterval(timer);
   }, []);
+
+  // Helper function to get pill visual properties
+  const getPillVisual = (medName: string): { shape: PillShape; color: PillColor } => {
+    const lowerName = medName.toLowerCase();
+    
+    if (lowerName.includes('blood pressure')) {
+      return { shape: 'oval', color: 'red' };
+    } else if (lowerName.includes('memory')) {
+      return { shape: 'capsule', color: 'blue' };
+    } else if (lowerName.includes('heart')) {
+      return { shape: 'round', color: 'pink' };
+    } else if (lowerName.includes('vitamin')) {
+      return { shape: 'round', color: 'yellow' };
+    } else if (lowerName.includes('evening')) {
+      return { shape: 'round', color: 'purple' };
+    } else {
+      return { shape: 'tablet', color: 'green' };
+    }
+  };
 
   // Demo medications
   useEffect(() => {
@@ -225,19 +246,38 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
             </div>
             
             <div className="space-y-3">
-              {medications.slice(0, 3).map(med => (
-                <div key={med.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-deep-navy">{med.name}</p>
-                    <p className="text-sm text-neutral-gray">{med.scheduleTime} • {med.dosage}</p>
+              {medications.slice(0, 3).map(med => {
+                const pillVisual = getPillVisual(med.name);
+                const quantity = parseInt(med.dosage) || 1;
+                
+                return (
+                  <div key={med.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex items-center space-x-4">
+                      <MedicineVisual 
+                        shape={pillVisual.shape}
+                        color={pillVisual.color}
+                        size="small"
+                        quantity={quantity}
+                      />
+                      <div>
+                        <p className="font-medium text-deep-navy text-lg">{med.name}</p>
+                        <p className="text-sm text-neutral-gray">{med.scheduleTime} • {med.dosage}</p>
+                      </div>
+                    </div>
+                    {med.lastResponse === 'taken' ? (
+                      <div className="flex items-center text-success-green">
+                        <CheckCircle className="w-6 h-6" />
+                        <span className="ml-1 font-medium">Taken</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-warning-yellow">
+                        <Clock className="w-6 h-6" />
+                        <span className="ml-1 text-sm font-medium">Pending</span>
+                      </div>
+                    )}
                   </div>
-                  {med.lastResponse === 'taken' ? (
-                    <span className="text-success-green">✓ Taken</span>
-                  ) : (
-                    <Clock className="w-5 h-5 text-warning-yellow" />
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

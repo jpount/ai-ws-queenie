@@ -6,15 +6,39 @@ export interface User {
   email: string;
   phone?: string;
   userType: UserType;
+  address?: string;
+  dateOfBirth?: string;
+  emergencyContact?: string;
   location?: {
     lat: number;
     lng: number;
   };
   profilePhoto?: string;
-  assignedPatients?: string[]; // For caregivers
+  assignedPatients?: PatientRelationship[]; // For caregivers
+  assignedCaregivers?: CaregiverRelationship[]; // For patients  
   medicalConditions?: string; // For patients
   createdAt: Date;
   lastActive: Date;
+}
+
+export interface CaregiverRelationship {
+  caregiverId: string;
+  caregiverName: string;
+  caregiverEmail: string;
+  relationship: 'family' | 'professional' | 'friend' | 'other';
+  relationshipDetails?: string; // e.g., "Daughter", "Home Health Aide"
+  isPrimary: boolean;
+  addedAt: Date;
+}
+
+export interface PatientRelationship {
+  patientId: string;
+  patientName: string;
+  patientEmail: string;
+  relationship: 'family' | 'professional' | 'friend' | 'other';
+  relationshipDetails?: string;
+  isPrimary: boolean;
+  addedAt: Date;
 }
 
 export interface AuthState {

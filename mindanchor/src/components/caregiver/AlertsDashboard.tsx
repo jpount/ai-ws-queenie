@@ -3,6 +3,7 @@ import { Bell, Filter, RefreshCw, AlertTriangle, CheckCircle2, Clock } from 'luc
 import AlertCard from './AlertCard';
 import type { Alert } from '../../types';
 import toast from 'react-hot-toast';
+import { playAlarmSound, AudioPatterns } from '../../utils/audioUtils';
 
 interface AlertsDashboardProps {
   caregiverId: string;
@@ -86,6 +87,10 @@ const AlertsDashboard: React.FC<AlertsDashboardProps> = ({
       };
 
       setAlerts(prev => [newAlert, ...prev]);
+      
+      // Play emergency alarm sound for caregiver - louder and repeating
+      playAlarmSound(AudioPatterns.EMERGENCY, 0.8, true);
+      
       toast.error('🚨 New Emergency Alert!', {
         duration: 5000,
         style: {
@@ -93,10 +98,6 @@ const AlertsDashboard: React.FC<AlertsDashboardProps> = ({
           color: '#fff',
         }
       });
-
-      // Play alert sound (in production)
-      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF');
-      audio.play().catch(() => {});
     }, 5000);
 
     return () => clearTimeout(timer);

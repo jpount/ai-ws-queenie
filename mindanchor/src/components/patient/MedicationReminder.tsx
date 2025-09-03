@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { X, Pill, Clock, CheckCircle, XCircle } from 'lucide-react';
 import type { Medication } from '../../types';
+import MedicineVisual from './MedicineVisual';
+import type { PillShape, PillColor } from './MedicineVisual';
+import { playAlarmSound, AudioPatterns } from '../../utils/audioUtils';
 
 interface MedicationReminderProps {
   medication: Medication;
@@ -15,8 +18,34 @@ const MedicationReminder: React.FC<MedicationReminderProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
+  // Get visual properties based on medication name/type
+  const getMedicationVisual = (medName: string): { shape: PillShape; color: PillColor; quantity: number } => {
+    const lowerName = medName.toLowerCase();
+    
+    if (lowerName.includes('blood pressure')) {
+      return { shape: 'oval', color: 'red', quantity: 1 };
+    } else if (lowerName.includes('memory')) {
+      return { shape: 'capsule', color: 'blue', quantity: 2 };
+    } else if (lowerName.includes('heart')) {
+      return { shape: 'round', color: 'pink', quantity: 1 };
+    } else if (lowerName.includes('vitamin')) {
+      return { shape: 'round', color: 'yellow', quantity: 1 };
+    } else if (lowerName.includes('pain')) {
+      return { shape: 'tablet', color: 'white', quantity: 2 };
+    } else if (lowerName.includes('antibiotic')) {
+      return { shape: 'capsule', color: 'orange', quantity: 1 };
+    } else if (lowerName.includes('evening')) {
+      return { shape: 'round', color: 'purple', quantity: 1 };
+    } else {
+      return { shape: 'tablet', color: 'green', quantity: 1 };
+    }
+  };
+
   useEffect(() => {
     setIsVisible(true);
+    
+    // Play notification sound when reminder appears
+    playAlarmSound(AudioPatterns.NOTIFICATION, 0.4);
     
     // Auto-dismiss after 30 seconds if no response
     const timer = setTimeout(() => {
@@ -28,10 +57,18 @@ const MedicationReminder: React.FC<MedicationReminderProps> = ({
 
   const handleResponse = (response: 'taken' | 'skipped') => {
     setIsVisible(false);
+    // Play appropriate sound based on response
+    if (response === 'taken') {
+      playAlarmSound(AudioPatterns.SUCCESS, 0.5);
+    } else {
+      playAlarmSound(AudioPatterns.WARNING, 0.3);
+    }
     setTimeout(() => {
       onResponse(medication.id, response);
     }, 300);
   };
+  
+  const pillVisual = getMedicationVisual(medication.name);
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
@@ -87,16 +124,25 @@ const MedicationReminder: React.FC<MedicationReminderProps> = ({
             </p>
           </div>
 
-          {/* Medicine Image Placeholder */}
-          <div className="bg-gray-100 rounded-2xl p-6 mb-6">
-            <div className="flex items-center justify-center">
-              <div className="bg-white p-6 rounded-xl shadow-inner">
-                <Pill className="w-16 h-16 text-mind-blue" />
-              </div>
+          {/* Medicine Visual Display */}
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 mb-6">
+            <div className="flex items-center justify-center mb-4">
+              <MedicineVisual 
+                shape={pillVisual.shape}
+                color={pillVisual.color}
+                size="large"
+                quantity={pillVisual.quantity}
+                label={`${pillVisual.quantity} ${pillVisual.quantity > 1 ? 'tablets' : 'tablet'}`}
+              />
             </div>
-            <p className="text-center text-sm text-neutral-gray mt-3">
-              Please take your medication now
-            </p>
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <p className="text-center text-lg font-medium text-deep-navy">
+                Please take your medication now
+              </p>
+              <p className="text-center text-sm text-neutral-gray mt-1">
+                Have a glass of water ready
+              </p>
+            </div>
           </div>
 
           {/* Action Buttons */}

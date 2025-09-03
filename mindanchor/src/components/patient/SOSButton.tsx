@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { playAlarmSound, AudioPatterns } from '../../utils/audioUtils';
 
 interface SOSButtonProps {
   patientId: string;
@@ -13,11 +14,15 @@ const SOSButton: React.FC<SOSButtonProps> = ({ patientName, onEmergency }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [helpComing, setHelpComing] = useState(false);
 
+
   const handleSOSClick = async () => {
     if (isActive || isLoading) return;
 
     setIsLoading(true);
     setIsActive(true);
+    
+    // Play emergency alarm sound immediately with repeat
+    playAlarmSound(AudioPatterns.EMERGENCY, 0.7, true);
 
     try {
       // Get current location
@@ -37,6 +42,10 @@ const SOSButton: React.FC<SOSButtonProps> = ({ patientName, onEmergency }) => {
             // Show success state
             setIsLoading(false);
             setHelpComing(true);
+            
+            // Play success sound
+            playAlarmSound(AudioPatterns.SUCCESS, 0.5);
+            
             toast.success('Emergency alert sent! Help is on the way.', {
               duration: 5000,
               icon: '🚨'
